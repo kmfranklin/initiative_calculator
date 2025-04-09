@@ -1,0 +1,239 @@
+{
+  "Online Visibility": [
+    {
+      "name": "SEO",
+      "description": "Boost your search engine rankings and ensure your target audience can easily find you by optimizing your website content, metadata, and backlinks.",
+      "hours": 13,
+      "timeframe": "Ongoing",
+      "priority": 5
+    },
+    {
+      "name": "Google/Microsoft Ads",
+      "description": "Drive high-quality traffic with paid ads on search engines, targeting users actively searching for services like yours.",
+      "hours": 16,
+      "timeframe": "Ongoing",
+      "priority": 4
+    },
+    {
+      "name": "Social Media",
+      "description": "Build a strong digital presence by consistently engaging your audience with relevant and shareable content across social platforms.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 3
+    },
+    {
+      "name": "Website Development",
+      "description": "Create a fast, user-friendly, and visually appealing website that reflects your brand and improves visibility.",
+      "hours": 40,
+      "timeframe": "3-6 Months",
+      "priority": 2
+    }
+  ],
+  "Lead Generation": [
+    {
+      "name": "Google/Microsoft Ads",
+      "description": "Attract leads ready to convert by leveraging advanced targeting and ad placement on search platforms.",
+      "hours": 16,
+      "timeframe": "Ongoing",
+      "priority": 5
+    },
+    {
+      "name": "Email Marketing",
+      "description": "Nurture potential leads through personalized, automated email campaigns that build trust and drive conversions.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 4
+    },
+    {
+      "name": "CRM + Sales Support",
+      "description": "Streamline lead management and enhance sales efficiency with robust CRM systems and data-driven insights.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 3
+    },
+    {
+      "name": "Social Media",
+      "description": "Engage prospective customers with compelling content that guides them through your sales funnel.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 2
+    }
+  ],
+  "Customer Communication": [
+    {
+      "name": "Email Marketing",
+      "description": "Keep your customers engaged and informed with relevant updates, promotions, and news tailored to their interests.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 5
+    },
+    {
+      "name": "Client Portal",
+      "description": "Offer customers a centralized, user-friendly platform to access your services, track interactions, and manage their accounts.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 4
+    },
+    {
+      "name": "Social Media",
+      "description": "Build meaningful connections with your audience through responsive and interactive content.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 3
+    }
+  ],
+  "Customer Retention": [
+    {
+      "name": "Client Portal",
+      "description": "Foster long-term relationships by giving your customers a seamless way to interact with your business.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 5
+    },
+    {
+      "name": "Email Marketing",
+      "description": "Reinforce customer loyalty with consistent communication that highlights your value and expertise.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 4
+    },
+    {
+      "name": "Custom Mobile/Web Application",
+      "description": "Enhance customer satisfaction with intuitive, tailored mobile or web applications that improve their experience.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 3
+    }
+  ],
+  "Branding + Messaging": [
+    {
+      "name": "Branding",
+      "description": "Develop a cohesive brand strategy that defines your identity and sets you apart in the marketplace.",
+      "hours": 20,
+      "timeframe": "1-3 Months",
+      "priority": 5
+    },
+    {
+      "name": "Logo",
+      "description": "Create a unique, memorable logo that encapsulates your brand’s personality and mission.",
+      "hours": 20,
+      "timeframe": "1-3 Months",
+      "priority": 4
+    },
+    {
+      "name": "Organic Social",
+      "description": "Strengthen your brand voice and presence through authentic and consistent social media content.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 3
+    }
+  ],
+  "User Experience": [
+    {
+      "name": "Branding",
+      "description": "Design a visually appealing and intuitive brand identity that enhances user engagement across platforms.",
+      "hours": 20,
+      "timeframe": "1-3 Months",
+      "priority": 5
+    },
+    {
+      "name": "Website Development",
+      "description": "Craft a responsive and user-friendly website that meets the needs of your audience while supporting your business goals.",
+      "hours": 40,
+      "timeframe": "3-6 Months",
+      "priority": 4
+    },
+    {
+      "name": "Custom Mobile/Web Application",
+      "description": "Deliver exceptional user experiences with custom applications tailored to your audience's preferences.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 3
+    }
+  ],
+  "Marketing Strategy": [
+    {
+      "name": "Discovery Workshop",
+      "description": "Dive deep into your business goals and challenges with a strategic session that defines a roadmap for success.",
+      "hours": 24,
+      "timeframe": "1-3 Months",
+      "priority": 5
+    },
+    {
+      "name": "Branding",
+      "description": "Establish a clear, strategic identity that positions your business effectively in the market.",
+      "hours": 20,
+      "timeframe": "1-3 Months",
+      "priority": 4
+    },
+    {
+      "name": "SEO",
+      "description": "Lay a solid foundation for ongoing marketing success by optimizing your online presence for search engines.",
+      "hours": 13,
+      "timeframe": "Ongoing",
+      "priority": 3
+    }
+  ],
+  "Technical Infrastructure": [
+    {
+      "name": "API Integrations",
+      "description": "Connect your systems seamlessly to improve data flow and operational efficiency.",
+      "hours": 30,
+      "timeframe": "3-6 Months",
+      "priority": 5
+    },
+    {
+      "name": "Custom Mobile/Web Application",
+      "description": "Build flexible, scalable applications that adapt to your technical and operational needs.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 4
+    },
+    {
+      "name": "SaaS Product",
+      "description": "Create and maintain robust SaaS solutions that align with your business model and growth objectives.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 3
+    }
+  ],
+  "Operational Improvements": [
+    {
+      "name": "Custom Mobile/Web Application",
+      "description": "Optimize workflows and improve productivity with tailored application solutions.",
+      "hours": 40,
+      "timeframe": "6-12 Months",
+      "priority": 5
+    },
+    {
+      "name": "CRM + Sales Support",
+      "description": "Enhance efficiency with tools that centralize customer data and streamline sales activities.",
+      "hours": 6,
+      "timeframe": "Ongoing",
+      "priority": 4
+    },
+    {
+      "name": "API Integrations",
+      "description": "Automate processes and ensure smooth communication between your platforms with custom API integrations.",
+      "hours": 30,
+      "timeframe": "3-6 Months",
+      "priority": 3
+    }
+  ],
+  "Accessibility + Compliance": [
+    {
+      "name": "Accessibility",
+      "description": "Ensure inclusivity with features and tools that make your platforms usable for all audiences.",
+      "hours": 100,
+      "timeframe": "Ongoing",
+      "priority": 5
+    },
+    {
+      "name": "Cookie Consent",
+      "description": "Stay compliant with privacy laws and build user trust by implementing transparent cookie consent systems.",
+      "hours": 100,
+      "timeframe": "Ongoing",
+      "priority": 4
+    }
+  ]
+}
