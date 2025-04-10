@@ -15,10 +15,21 @@ add_action('rest_api_init', function () {
   ]);
 });
 
-// 🔹 Callback function that returns the service dataset as JSON
 function initiative_calc_get_services()
 {
   $json_path = plugin_dir_path(__FILE__) . 'services/services.json';
   $json = file_get_contents($json_path);
   return json_decode($json, true);
 }
+
+function initiative_calc_enqueue_assets()
+{
+  wp_enqueue_script(
+    'initiative-calculator',
+    plugin_dir_url(__FILE__) . 'assets/initiative-calculator.js',
+    [],
+    '1.0',
+    true
+  );
+}
+add_action('wp_enqueue_scripts', 'initiative_calc_enqueue_assets');
