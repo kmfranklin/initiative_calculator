@@ -123,9 +123,33 @@ const renderConfirmation = new MutationObserver(() => {
         }
       });
 
+      let unlimitedOngoingHours = 0;
+      let unlimitedOneTimeHours = 0;
+
+      unlimitedServices.forEach(service => {
+        if (service.timeframe === 'Ongoing') {
+          unlimitedOngoingHours += service.hours;
+        } else {
+          unlimitedOneTimeHours += service.hours;
+        }
+      });
+
+      let budgetOngoingHours = 0;
+      let budgetOneTimeHours = 0;
+
+      budgetServices.forEach(service => {
+        if (service.timeframe === 'Ongoing') {
+          budgetOngoingHours += service.hours;
+        } else {
+          budgetOneTimeHours += service.hours;
+        }
+      });
+
       // Output "If Budget Was No Issue" services
       target.innerHTML += `
         <h3>Unlimited Possibilities</h3>
+        <p><strong>Ongoing Hours:</strong> ${unlimitedOngoingHours} hrs</p>
+        <p><strong>One-Time Project Hours:</strong> ${unlimitedOneTimeHours} hrs</p>
         <ul>
           ${unlimitedServices
             .map(
@@ -140,6 +164,8 @@ const renderConfirmation = new MutationObserver(() => {
       // Output budget-friendly recommendations
       target.innerHTML += `
       <h3>Prioritized Based on Your Budget</h3>
+      <p><strong>Ongoing Hours:</strong> ${budgetOngoingHours} hrs</p>
+      <p><strong>One-Time Project Hours:</strong> ${budgetOneTimeHours} hrs</p>
       <ul>
         ${budgetServices
           .map(
