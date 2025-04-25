@@ -43,5 +43,12 @@ function initiative_calc_enqueue_assets()
     '1.0',
     true
   );
+  wp_enqueue_script(
+    'chartjs',
+    'https://cdn.jsdelivr.net/npm/chart.js',
+    [],
+    null,
+    true
+  );
 }
 add_action('wp_enqueue_scripts', 'initiative_calc_enqueue_assets');

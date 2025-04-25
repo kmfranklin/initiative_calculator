@@ -134,6 +134,31 @@ const renderConfirmation = new MutationObserver(() => {
         }
       });
 
+      // Prepare Ongoing services data for Unlimited Possibilities
+      const ongoingUnlimited = unlimitedServices.filter(s => s.timeframe === 'Ongoing');
+
+      const labelsUnlimited = ongoingUnlimited.map(s => `${s.name}: ${s.hours} hrs`);
+      const hoursUnlimited = ongoingUnlimited.map(s => s.hours);
+      function getColor(index) {
+        const baseColors = [
+          '#FF2041', // primary red
+          '#23294F', // navy
+          '#FFDDE2', // light pink
+          '#6A4C93', // indigo/purple
+          '#FF7A7A', // light coral
+          '#F3BCC3', // blush
+          '#A0A6D6', // soft indigo
+          '#C1B7DC', // dusty lavender
+          '#CFE2F3', // cloudy blue
+          '#FFC857', // gold
+        ];
+
+        if (index < baseColors.length) return baseColors[index];
+
+        const hue = Math.floor(Math.random() * 360);
+        return `hsl(${hue}, 70%, 80%)`;
+      }
+
       let budgetOngoingHours = 0;
       let budgetOneTimeHours = 0;
 
@@ -151,15 +176,42 @@ const renderConfirmation = new MutationObserver(() => {
         <p><strong>Ongoing Hours:</strong> ${unlimitedOngoingHours} hrs</p>
         <p><strong>One-Time Project Hours:</strong> ${unlimitedOneTimeHours} hrs</p>
         <ul>
-          ${unlimitedServices
-            .map(
-              s => `<li>
-                <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
-              </li>`
-            )
-            .join('')}
+          ${unlimitedServices.map(s => `<li><strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)</li>`).join('')}
         </ul>
-        `;
+
+        <h4>Ongoing Services Breakdown by Hours</h4>
+        <div style="max-width: 300px; margin-bottom: 2rem;">
+          <canvas id="unlimitedOngoingChart"></canvas>
+        </div>
+      `;
+
+      setTimeout(() => {
+        const canvas = document.getElementById('unlimitedOngoingChart');
+        if (canvas && canvas.getContext) {
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: labelsUnlimited,
+              datasets: [
+                {
+                  data: hoursUnlimited,
+                  backgroundColor: labelsUnlimited.map((_, i) => getColor(i)),
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                },
+              },
+            },
+          });
+        }
+      }, 50);
 
       // Output budget-friendly recommendations
       target.innerHTML += `
