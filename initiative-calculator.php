@@ -4,9 +4,13 @@
  * Plugin Name: Initiative Calculator
  * Description: Generates tailored service recommendations from form inputs using Gravity Forms.
  * Version: 1.0
- * Author: Kevin Franklin — Nomadic Software
+ * Author: Kevin Franklin | Nomadic Software
+ * License: All Rights Reserved
  */
 
+/**
+ * Registers a custom REST API route to deliver service dataset.
+ */
 add_action('rest_api_init', function () {
   register_rest_route('initiative-calc/v1', '/services', [
     'methods' => 'GET',
@@ -15,6 +19,11 @@ add_action('rest_api_init', function () {
   ]);
 });
 
+/**
+ * Loads and returns services dataset from JSON file.
+ * 
+ * @return array Decoded services array.
+ */
 function initiative_calc_get_services()
 {
   $json_path = plugin_dir_path(__FILE__) . 'services/services.json';
@@ -22,6 +31,9 @@ function initiative_calc_get_services()
   return json_decode($json, true);
 }
 
+/**
+ * Enqueues the custom JavaScript file for the Initiative Calculator.
+ */
 function initiative_calc_enqueue_assets()
 {
   wp_enqueue_script(
