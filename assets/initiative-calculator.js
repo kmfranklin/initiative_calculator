@@ -32,7 +32,7 @@ const watchFormPages = new MutationObserver(() => {
 
   if (page3 && page3.style.display !== 'none') {
     saveInputData();
-    watchFormPages.disconnect(); // Stop watching once we're past Page 2
+    watchFormPages.disconnect();
   }
 });
 
@@ -47,7 +47,6 @@ const renderConfirmation = new MutationObserver(() => {
   if (!target) return;
 
   const savedInputs = JSON.parse(localStorage.getItem('initiative_inputs') || '{}');
-
   const budgetOneTime = parseFloat(savedInputs.budgetOneTime) || 0;
   const budgetOngoing = parseFloat(savedInputs.budgetOngoing) || 0;
 
@@ -58,6 +57,34 @@ const renderConfirmation = new MutationObserver(() => {
     <p>One-Time Budget: $${budgetOneTime.toLocaleString()}</p>
     <p>Monthly Budget: $${budgetOngoing.toLocaleString()}</p>
   `;
+
+  // Fetch and flatten the dataset after confirmation screen appears
+  fetch('/wp-json/initiative-calc/v1/services')
+    .then(res => res.json())
+    .then(data => {
+      // Flatten the dataset
+      const allServices = Object.entries(data).flatMap(([category, services]) =>
+        services.map(service => ({
+          ...service,
+          category,
+        }))
+      );
+
+      console.log('All services loaded:', allServices);
+
+      // Filter by priorities
+      const userPriorities = [savedInputs.priority1, savedInputs.priority2, savedInputs.priority3].filter(Boolean);
+      const matchingServices = allServices.filter(service => userPriorities.includes(service.category));
+
+      console.log('Services matching user priorities:', matchingServices);
+
+      target.innerHTML += `
+        <h3>🛠️ Matching Services:</h3>
+        <ul>
+          ${matchingServices.map(s => `<li><strong>${s.name}</strong> (${s.category})</li>`).join('')}
+        </ul>
+      `;
+    });
 
   renderConfirmation.disconnect();
 });
