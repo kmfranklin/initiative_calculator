@@ -1,3 +1,6 @@
+/**
+ * Saves selected form input values to localStorage for later retrieval.
+ */
 function saveInputData() {
   const dataToSave = {
     priority1: document.querySelector('#input_4_3')?.value || '',
@@ -9,7 +12,9 @@ function saveInputData() {
   localStorage.setItem('initiative_inputs', JSON.stringify(dataToSave));
 }
 
-// Save priorities on input, and full form on submit
+/**
+ * Initializes event listeners for input fields and form submission.
+ */
 document.addEventListener('DOMContentLoaded', () => {
   const prioritySelectors = ['#input_4_3', '#input_4_6', '#input_4_7'];
   prioritySelectors.forEach(sel => {
@@ -19,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#gform_4')?.addEventListener('submit', saveInputData);
 });
 
-// Watch for Page 2/3 of the form becoming visible
+/**
+ * Monitors Gravity Forms page transitions to capture additional inputs.
+ */
 const watchFormPages = new MutationObserver(() => {
   const page2 = document.getElementById('gform_page_4_2');
   const page3 = document.getElementById('gform_page_4_3');
@@ -41,7 +48,9 @@ watchFormPages.observe(document.body, {
   subtree: true,
 });
 
-// Render the results on the confirmation screen
+/**
+ * Render's the user's priorities, matching services, and "Unlimited Possibilities" after form submission.
+ */
 const renderConfirmation = new MutationObserver(() => {
   const target = document.getElementById('initiative-results');
   if (!target) return;
@@ -83,6 +92,7 @@ const renderConfirmation = new MutationObserver(() => {
 
       scoredServices.sort((a, b) => b.score - a.score);
 
+      // Determine "Unlimited Budget" service possibilities
       const unlimitedServices = allServices
         .filter(service => userPriorities.includes(service.category))
         .sort((a, b) => {
@@ -91,13 +101,29 @@ const renderConfirmation = new MutationObserver(() => {
           return weightB - weightA;
         });
 
-      target.innerHTML += `
-        <h3>Matching Services:</h3>
-        <ul>
-          ${scoredServices.map(s => `<li><strong>${s.name}</strong> (${s.category})</li>`).join('')}
-        </ul>
-      `;
+      // Budget-based recommendations
+      let currentMonthlyBudget = budgetOngoing;
+      let currentOneTimeBudget = budgetOneTime;
 
+      const budgetServices = [];
+
+      unlimitedServices.forEach(service => {
+        const serviceCost = service.hours * 150;
+
+        if (service.timeframe === 'Ongoing') {
+          if (currentMonthlyBudget >= serviceCost) {
+            budgetServices.push(service);
+            currentMonthlyBudget -= serviceCost;
+          }
+        } else {
+          if (currentOneTimeBudget >= serviceCost) {
+            budgetServices.push(service);
+            currentOneTimeBudget -= serviceCost;
+          }
+        }
+      });
+
+      // Output "If Budget Was No Issue" services
       target.innerHTML += `
         <h3>Unlimited Possibilities</h3>
         <ul>
@@ -110,6 +136,20 @@ const renderConfirmation = new MutationObserver(() => {
             .join('')}
         </ul>
         `;
+
+      // Output budget-friendly recommendations
+      target.innerHTML += `
+      <h3>Prioritized Based on Your Budget</h3>
+      <ul>
+        ${budgetServices
+          .map(
+            s => `<li>
+              <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
+            </li>`
+          )
+          .join('')}
+      </ul>
+      `;
     });
 
   renderConfirmation.disconnect();
