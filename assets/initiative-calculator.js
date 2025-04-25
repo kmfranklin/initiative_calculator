@@ -83,12 +83,33 @@ const renderConfirmation = new MutationObserver(() => {
 
       scoredServices.sort((a, b) => b.score - a.score);
 
+      const unlimitedServices = allServices
+        .filter(service => userPriorities.includes(service.category))
+        .sort((a, b) => {
+          const weightA = userPriorityWeight[a.category] || 0;
+          const weightB = userPriorityWeight[b.category] || 0;
+          return weightB - weightA;
+        });
+
       target.innerHTML += `
         <h3>Matching Services:</h3>
         <ul>
           ${scoredServices.map(s => `<li><strong>${s.name}</strong> (${s.category})</li>`).join('')}
         </ul>
       `;
+
+      target.innerHTML += `
+        <h3>Unlimited Possibilities</h3>
+        <ul>
+          ${unlimitedServices
+            .map(
+              s => `<li>
+                <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
+              </li>`
+            )
+            .join('')}
+        </ul>
+        `;
     });
 
   renderConfirmation.disconnect();
