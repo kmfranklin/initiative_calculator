@@ -70,18 +70,23 @@ const renderConfirmation = new MutationObserver(() => {
         }))
       );
 
-      console.log('All services loaded:', allServices);
+      const userPriorityWeight = {
+        [savedInputs.priority1]: 3,
+        [savedInputs.priority2]: 2,
+        [savedInputs.priority3]: 1,
+      };
 
       // Filter by priorities
       const userPriorities = [savedInputs.priority1, savedInputs.priority2, savedInputs.priority3].filter(Boolean);
       const matchingServices = allServices.filter(service => userPriorities.includes(service.category));
+      const scoredServices = matchingServices.map(service => ({ ...service, score: (userPriorityWeight[service.category] || 0) * (service.priority || 0) }));
 
-      console.log('Services matching user priorities:', matchingServices);
+      scoredServices.sort((a, b) => b.score - a.score);
 
       target.innerHTML += `
-        <h3>🛠️ Matching Services:</h3>
+        <h3>Matching Services:</h3>
         <ul>
-          ${matchingServices.map(s => `<li><strong>${s.name}</strong> (${s.category})</li>`).join('')}
+          ${scoredServices.map(s => `<li><strong>${s.name}</strong> (${s.category})</li>`).join('')}
         </ul>
       `;
     });
