@@ -227,7 +227,44 @@ const renderConfirmation = new MutationObserver(() => {
           )
           .join('')}
       </ul>
+
+      <h4>Ongoing Services Breakdown by Hours</h4>
+      <div style="max-width: 300px; max-height: 300px;">
+        <canvas id="budgetOngoingChart" width="400" height="400"></canvas>
+      </div>
       `;
+
+      const ongoingBudget = budgetServices.filter(s => s.timeframe === 'Ongoing');
+      const labelsBudget = ongoingBudget.map(s => `${s.name}: ${s.hours} hrs`);
+      const hoursBudget = ongoingBudget.map(s => s.hours);
+
+      setTimeout(() => {
+        const canvas = document.getElementById('budgetOngoingChart');
+        if (canvas && canvas.getContext) {
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: labelsBudget,
+              datasets: [
+                {
+                  data: hoursBudget,
+                  backgroundColor: labelsBudget.map((_, i) => getColor(i)),
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                },
+              },
+            },
+          });
+        }
+      }, 50);
     });
 
   renderConfirmation.disconnect();
