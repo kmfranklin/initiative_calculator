@@ -32,7 +32,7 @@ function initiative_calc_get_services()
 }
 
 /**
- * Enqueues the custom JavaScript file for the Initiative Calculator.
+ * Enqueues the custom JavaScript and CSS files for the Initiative Calculator.
  */
 function initiative_calc_enqueue_assets()
 {
@@ -43,12 +43,20 @@ function initiative_calc_enqueue_assets()
     '1.0',
     true
   );
+
   wp_enqueue_script(
     'chartjs',
     'https://cdn.jsdelivr.net/npm/chart.js',
     [],
     null,
     true
+  );
+
+  wp_enqueue_style(
+    'initiative-calculator-styles',
+    plugin_dir_url(__FILE__) . 'assets/styles.css',
+    [],
+    '1.0'
   );
 }
 add_action('wp_enqueue_scripts', 'initiative_calc_enqueue_assets');

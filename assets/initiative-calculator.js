@@ -172,17 +172,23 @@ const renderConfirmation = new MutationObserver(() => {
 
       // Output "If Budget Was No Issue" services
       target.innerHTML += `
-        <h3>Unlimited Possibilities</h3>
-        <p><strong>Ongoing Hours:</strong> ${unlimitedOngoingHours} hrs</p>
-        <p><strong>One-Time Project Hours:</strong> ${unlimitedOneTimeHours} hrs</p>
-        <ul>
-          ${unlimitedServices.map(s => `<li><strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)</li>`).join('')}
-        </ul>
-
-        <h4>Ongoing Services Breakdown by Hours</h4>
-        <div style="max-width: 300px; margin-bottom: 2rem;">
-          <canvas id="unlimitedOngoingChart"></canvas>
+      <section class="recommendation-columns">
+        <div class="column">
+          <h3>Unlimited Possibilities</h3>
+          <p><strong>Ongoing Hours:</strong> ${unlimitedOngoingHours} hrs</p>
+          <p><strong>One-Time Project Hours:</strong> ${unlimitedOneTimeHours} hrs</p>
+          <ol>
+            ${unlimitedServices.map(s => `<li><strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)</li>`).join('')}
+          </ol>
         </div>
+
+        <div class="column">
+          <h4>Ongoing Services Breakdown by Hours</h4>
+          <div>
+            <canvas id="unlimitedOngoingChart"></canvas>
+          </div>
+        </div>
+      </section>
       `;
 
       setTimeout(() => {
@@ -201,13 +207,22 @@ const renderConfirmation = new MutationObserver(() => {
               ],
             },
             options: {
-              responsive: true,
+              responsive: false,
               maintainAspectRatio: false,
+              layout: {
+                padding: 20,
+              },
               plugins: {
                 legend: {
-                  position: 'bottom',
+                  position: 'right',
+                  labels: {
+                    boxWidth: 12,
+                    boxHeight: 12,
+                  },
+                  maxHeight: 60,
                 },
               },
+              radius: '95%',
             },
           });
         }
@@ -215,23 +230,29 @@ const renderConfirmation = new MutationObserver(() => {
 
       // Output budget-friendly recommendations
       target.innerHTML += `
-      <h3>Prioritized Based on Your Budget</h3>
-      <p><strong>Ongoing Hours:</strong> ${budgetOngoingHours} hrs</p>
-      <p><strong>One-Time Project Hours:</strong> ${budgetOneTimeHours} hrs</p>
-      <ul>
-        ${budgetServices
-          .map(
-            s => `<li>
-              <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
-            </li>`
-          )
-          .join('')}
-      </ul>
-
-      <h4>Ongoing Services Breakdown by Hours</h4>
-      <div style="max-width: 300px; max-height: 300px;">
-        <canvas id="budgetOngoingChart" width="400" height="400"></canvas>
-      </div>
+      <section class="recommendation-columns">
+        <div class="column">
+          <h3>Prioritized Based on Your Budget</h3>
+          <p><strong>Ongoing Hours:</strong> ${budgetOngoingHours} hrs</p>
+          <p><strong>One-Time Project Hours:</strong> ${budgetOneTimeHours} hrs</p>
+          <ol>
+            ${budgetServices
+              .map(
+                s => `<li>
+                  <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
+                </li>`
+              )
+              .join('')}
+          </ol>
+        </div>
+        
+        <div class="column">
+          <h4>Ongoing Services Breakdown by Hours</h4>
+          <div>
+            <canvas id="budgetOngoingChart"></canvas>
+          </div>
+        </div>
+      </section>
       `;
 
       const ongoingBudget = budgetServices.filter(s => s.timeframe === 'Ongoing');
@@ -254,13 +275,22 @@ const renderConfirmation = new MutationObserver(() => {
               ],
             },
             options: {
-              responsive: true,
+              responsive: false,
               maintainAspectRatio: false,
+              layout: {
+                padding: 20,
+              },
               plugins: {
                 legend: {
-                  position: 'bottom',
+                  position: 'right',
+                  labels: {
+                    boxWidth: 12,
+                    boxHeight: 12,
+                  },
+                  maxHeight: 60,
                 },
               },
+              radius: '95%',
             },
           });
         }

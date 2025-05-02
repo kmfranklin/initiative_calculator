@@ -1,0 +1,40 @@
+.recommendation-columns {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+}
+
+.recommendation-columns .column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.recommendation-columns .column h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.recommendation-columns .column p {
+  margin: 0 0 0.75rem 0;
+}
+
+.recommendation-columns .column ol {
+  padding-left: 1.25rem;
+}
+
+.recommendation-columns .column h4 {
+  margin-bottom: -100px !important;
+}
+
+.recommendation-columns .column canvas {
+  width: 450px !important;
+  height: auto !important;
+  display: block;
+  margin: 0;
+}
+
+.recommendation-columns .column + .column {
+  border-left: 1px solid #ddd;
+  padding-left: 40px;
+}
