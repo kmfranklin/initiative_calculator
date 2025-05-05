@@ -5,6 +5,7 @@
  * Description: Generates tailored service recommendations from form inputs using Gravity Forms.
  * Version: 1.0
  * Author: Kevin Franklin | Nomadic Software
+ * Author URI: https://nomadicsoftware.com
  * License: All Rights Reserved
  */
 

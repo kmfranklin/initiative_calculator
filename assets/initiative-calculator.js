@@ -1,306 +1,143 @@
-/**
- * Saves selected form input values to localStorage for later retrieval.
- */
-function saveInputData() {
-  const dataToSave = {
-    priority1: document.querySelector('#input_4_3')?.value || '',
-    priority2: document.querySelector('#input_4_6')?.value || '',
-    priority3: document.querySelector('#input_4_7')?.value || '',
-    budgetOneTime: document.querySelector('#input_4_10')?.value || '',
-    budgetOngoing: document.querySelector('#input_4_11')?.value || '',
-  };
-  localStorage.setItem('initiative_inputs', JSON.stringify(dataToSave));
+function normalizeCategory(name) {
+  return (name ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-/**
- * Initializes event listeners for input fields and form submission.
- */
-document.addEventListener('DOMContentLoaded', () => {
-  const prioritySelectors = ['#input_4_3', '#input_4_6', '#input_4_7'];
-  prioritySelectors.forEach(sel => {
-    document.querySelector(sel)?.addEventListener('input', saveInputData);
-  });
+function toNumber(value) {
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string') value = String(value ?? '');
+  return parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+}
 
-  document.querySelector('#gform_4')?.addEventListener('submit', saveInputData);
-});
-
-/**
- * Monitors Gravity Forms page transitions to capture additional inputs.
- */
-const watchFormPages = new MutationObserver(() => {
-  const page2 = document.getElementById('gform_page_4_2');
-  const page3 = document.getElementById('gform_page_4_3');
-
-  if (page2 && page2.style.display !== 'none') {
-    ['#input_4_10', '#input_4_11'].forEach(sel => {
-      document.querySelector(sel)?.addEventListener('input', saveInputData);
-    });
-  }
-
-  if (page3 && page3.style.display !== 'none') {
-    saveInputData();
-    watchFormPages.disconnect();
-  }
-});
-
-watchFormPages.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
-
-/**
- * Render's the user's priorities, matching services, and "Unlimited Possibilities" after form submission.
- */
-const renderConfirmation = new MutationObserver(() => {
+function initConfirmationResults() {
   const target = document.getElementById('initiative-results');
-  if (!target) return;
 
-  const savedInputs = JSON.parse(localStorage.getItem('initiative_inputs') || '{}');
-  const budgetOneTime = parseFloat(savedInputs.budgetOneTime) || 0;
-  const budgetOngoing = parseFloat(savedInputs.budgetOngoing) || 0;
+  const savedInputs = {
+    priority1: document.getElementById('priority1')?.textContent.trim() || '',
+    priority2: document.getElementById('priority2')?.textContent.trim() || '',
+    priority3: document.getElementById('priority3')?.textContent.trim() || '',
+    budgetOneTime: document.getElementById('onetime')?.textContent.trim() || '',
+    budgetOngoing: document.getElementById('ongoing')?.textContent.trim() || '',
+  };
 
-  target.innerHTML = `
-    <p>Top Priority: ${savedInputs.priority1}</p>
-    <p>Second Priority: ${savedInputs.priority2}</p>
-    <p>Third Priority: ${savedInputs.priority3}</p>
-    <p>One-Time Budget: $${budgetOneTime.toLocaleString()}</p>
-    <p>Monthly Budget: $${budgetOngoing.toLocaleString()}</p>
-  `;
+  const budgetOneTime = toNumber(savedInputs.budgetOneTime);
+  const budgetOngoing = toNumber(savedInputs.budgetOngoing);
 
-  // Fetch and flatten the dataset after confirmation screen appears
+  if (!savedInputs.priority1 || !savedInputs.priority2 || !savedInputs.priority3 || (budgetOneTime === 0 && budgetOngoing === 0)) {
+    console.error('Missing input data, aborting.');
+    return;
+  }
+
   fetch('/wp-json/initiative-calc/v1/services')
     .then(res => res.json())
     .then(data => {
-      // Flatten the dataset
       const allServices = Object.entries(data).flatMap(([category, services]) =>
         services.map(service => ({
           ...service,
-          category,
+          categoryOriginal: category,
+          category: normalizeCategory(category),
         }))
       );
 
-      const userPriorityWeight = {
-        [savedInputs.priority1]: 3,
-        [savedInputs.priority2]: 2,
-        [savedInputs.priority3]: 1,
-      };
+      const userPriorities = [savedInputs.priority1, savedInputs.priority2, savedInputs.priority3].map(p => normalizeCategory(p)).filter(Boolean);
 
-      // Filter by priorities
-      const userPriorities = [savedInputs.priority1, savedInputs.priority2, savedInputs.priority3].filter(Boolean);
-      const matchingServices = allServices.filter(service => userPriorities.includes(service.category));
-      const scoredServices = matchingServices.map(service => ({ ...service, score: (userPriorityWeight[service.category] || 0) * (service.priority || 0) }));
+      const userPriorityWeight = {};
+      userPriorities.forEach((p, i) => {
+        userPriorityWeight[p] = 3 - i;
+      });
 
-      scoredServices.sort((a, b) => b.score - a.score);
+      const unlimitedServices = allServices.filter(service => userPriorities.includes(service.category)).sort((a, b) => (userPriorityWeight[b.category] || 0) - (userPriorityWeight[a.category] || 0));
 
-      // Determine "Unlimited Budget" service possibilities
-      const unlimitedServices = allServices
-        .filter(service => userPriorities.includes(service.category))
-        .sort((a, b) => {
-          const weightA = userPriorityWeight[a.category] || 0;
-          const weightB = userPriorityWeight[b.category] || 0;
-          return weightB - weightA;
-        });
-
-      // Budget-based recommendations
       let currentMonthlyBudget = budgetOngoing;
       let currentOneTimeBudget = budgetOneTime;
-
       const budgetServices = [];
 
       unlimitedServices.forEach(service => {
-        const serviceCost = service.hours * 150;
-
-        if (service.timeframe === 'Ongoing') {
-          if (currentMonthlyBudget >= serviceCost) {
-            budgetServices.push(service);
-            currentMonthlyBudget -= serviceCost;
-          }
-        } else {
-          if (currentOneTimeBudget >= serviceCost) {
-            budgetServices.push(service);
-            currentOneTimeBudget -= serviceCost;
-          }
+        const cost = service.hours * 150;
+        if (service.timeframe === 'Ongoing' && currentMonthlyBudget >= cost) {
+          budgetServices.push(service);
+          currentMonthlyBudget -= cost;
+        } else if (service.timeframe !== 'Ongoing' && currentOneTimeBudget >= cost) {
+          budgetServices.push(service);
+          currentOneTimeBudget -= cost;
         }
       });
 
-      let unlimitedOngoingHours = 0;
-      let unlimitedOneTimeHours = 0;
+      const getColor = index => {
+        const baseColors = ['#FF2041', '#23294F', '#FFDDE2', '#6A4C93', '#FF7A7A', '#F3BCC3', '#A0A6D6', '#C1B7DC', '#CFE2F3', '#FFC857'];
+        return index < baseColors.length ? baseColors[index] : `hsl(${Math.floor(Math.random() * 360)}, 70%, 80%)`;
+      };
 
-      unlimitedServices.forEach(service => {
-        if (service.timeframe === 'Ongoing') {
-          unlimitedOngoingHours += service.hours;
-        } else {
-          unlimitedOneTimeHours += service.hours;
-        }
-      });
+      const renderSection = (title, services) => {
+        const ongoing = services.filter(s => s.timeframe === 'Ongoing');
+        const ongoingHours = ongoing.reduce((sum, s) => sum + s.hours, 0);
+        const oneTimeHours = services.filter(s => s.timeframe !== 'Ongoing').reduce((sum, s) => sum + s.hours, 0);
 
-      // Prepare Ongoing services data for Unlimited Possibilities
-      const ongoingUnlimited = unlimitedServices.filter(s => s.timeframe === 'Ongoing');
+        const labels = ongoing.map(s => `${s.name}: ${s.hours.toLocaleString()} hrs`);
+        const hours = ongoing.map(s => s.hours);
 
-      const labelsUnlimited = ongoingUnlimited.map(s => `${s.name}: ${s.hours} hrs`);
-      const hoursUnlimited = ongoingUnlimited.map(s => s.hours);
-      function getColor(index) {
-        const baseColors = [
-          '#FF2041', // primary red
-          '#23294F', // navy
-          '#FFDDE2', // light pink
-          '#6A4C93', // indigo/purple
-          '#FF7A7A', // light coral
-          '#F3BCC3', // blush
-          '#A0A6D6', // soft indigo
-          '#C1B7DC', // dusty lavender
-          '#CFE2F3', // cloudy blue
-          '#FFC857', // gold
-        ];
+        target.innerHTML += `
+          <section class="recommendation-columns">
+            <div class="column">
+              <h3>${title}</h3>
+              <p><strong>Ongoing Hours:</strong> ${ongoingHours.toLocaleString()} hrs</p>
+              <p><strong>One-Time Project Hours:</strong> ${oneTimeHours.toLocaleString()} hrs</p>
+              <ol>
+                ${services.map(s => `<li><strong>${s.name}</strong> (${s.categoryOriginal}, ${s.timeframe}, ${s.hours.toLocaleString()} hrs)</li>`).join('')}
+              </ol>
+            </div>
+            <div class="column">
+              <h4>Ongoing Services Breakdown by Hours</h4>
+              <div><canvas id="${normalizeCategory(title)}Chart" width="400" height="400" style="width:400px; height:400px;"></canvas></div>
+            </div>
+          </section>
+        `;
 
-        if (index < baseColors.length) return baseColors[index];
-
-        const hue = Math.floor(Math.random() * 360);
-        return `hsl(${hue}, 70%, 80%)`;
-      }
-
-      let budgetOngoingHours = 0;
-      let budgetOneTimeHours = 0;
-
-      budgetServices.forEach(service => {
-        if (service.timeframe === 'Ongoing') {
-          budgetOngoingHours += service.hours;
-        } else {
-          budgetOneTimeHours += service.hours;
-        }
-      });
-
-      // Output "If Budget Was No Issue" services
-      target.innerHTML += `
-      <section class="recommendation-columns">
-        <div class="column">
-          <h3>Unlimited Possibilities</h3>
-          <p><strong>Ongoing Hours:</strong> ${unlimitedOngoingHours} hrs</p>
-          <p><strong>One-Time Project Hours:</strong> ${unlimitedOneTimeHours} hrs</p>
-          <ol>
-            ${unlimitedServices.map(s => `<li><strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)</li>`).join('')}
-          </ol>
-        </div>
-
-        <div class="column">
-          <h4>Ongoing Services Breakdown by Hours</h4>
-          <div>
-            <canvas id="unlimitedOngoingChart"></canvas>
-          </div>
-        </div>
-      </section>
-      `;
-
-      setTimeout(() => {
-        const canvas = document.getElementById('unlimitedOngoingChart');
-        if (canvas && canvas.getContext) {
-          const ctx = canvas.getContext('2d');
-          new Chart(ctx, {
+        setTimeout(() => {
+          new Chart(document.getElementById(`${normalizeCategory(title)}Chart`).getContext('2d'), {
             type: 'pie',
             data: {
-              labels: labelsUnlimited,
+              labels: labels,
               datasets: [
                 {
-                  data: hoursUnlimited,
-                  backgroundColor: labelsUnlimited.map((_, i) => getColor(i)),
+                  data: hours,
+                  backgroundColor: labels.map((_, i) => getColor(i)),
                 },
               ],
             },
             options: {
               responsive: false,
               maintainAspectRatio: false,
-              layout: {
-                padding: 20,
-              },
+              devicePixelRatio: 2,
               plugins: {
                 legend: {
-                  position: 'right',
-                  labels: {
-                    boxWidth: 12,
-                    boxHeight: 12,
+                  position: 'bottom',
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return context.label;
+                    },
                   },
-                  maxHeight: 60,
                 },
               },
-              radius: '95%',
             },
           });
-        }
-      }, 50);
+        }, 50);
+      };
 
-      // Output budget-friendly recommendations
-      target.innerHTML += `
-      <section class="recommendation-columns">
-        <div class="column">
-          <h3>Prioritized Based on Your Budget</h3>
-          <p><strong>Ongoing Hours:</strong> ${budgetOngoingHours} hrs</p>
-          <p><strong>One-Time Project Hours:</strong> ${budgetOneTimeHours} hrs</p>
-          <ol>
-            ${budgetServices
-              .map(
-                s => `<li>
-                  <strong>${s.name}</strong> (${s.category}, ${s.timeframe}, ${s.hours} hrs)
-                </li>`
-              )
-              .join('')}
-          </ol>
-        </div>
-        
-        <div class="column">
-          <h4>Ongoing Services Breakdown by Hours</h4>
-          <div>
-            <canvas id="budgetOngoingChart"></canvas>
-          </div>
-        </div>
-      </section>
-      `;
-
-      const ongoingBudget = budgetServices.filter(s => s.timeframe === 'Ongoing');
-      const labelsBudget = ongoingBudget.map(s => `${s.name}: ${s.hours} hrs`);
-      const hoursBudget = ongoingBudget.map(s => s.hours);
-
-      setTimeout(() => {
-        const canvas = document.getElementById('budgetOngoingChart');
-        if (canvas && canvas.getContext) {
-          const ctx = canvas.getContext('2d');
-          new Chart(ctx, {
-            type: 'pie',
-            data: {
-              labels: labelsBudget,
-              datasets: [
-                {
-                  data: hoursBudget,
-                  backgroundColor: labelsBudget.map((_, i) => getColor(i)),
-                },
-              ],
-            },
-            options: {
-              responsive: false,
-              maintainAspectRatio: false,
-              layout: {
-                padding: 20,
-              },
-              plugins: {
-                legend: {
-                  position: 'right',
-                  labels: {
-                    boxWidth: 12,
-                    boxHeight: 12,
-                  },
-                  maxHeight: 60,
-                },
-              },
-              radius: '95%',
-            },
-          });
-        }
-      }, 50);
+      renderSection('Unlimited Possibilities', unlimitedServices);
+      renderSection('Prioritized Based on Your Budget', budgetServices);
     });
+}
 
-  renderConfirmation.disconnect();
+const observer = new MutationObserver(() => {
+  const wrapper = document.querySelector('.gform_confirmation_wrapper');
+  const values = document.getElementById('initiative-values');
+
+  if (wrapper && values) {
+    observer.disconnect();
+    initConfirmationResults();
+  }
 });
 
-renderConfirmation.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+observer.observe(document.body, { childList: true, subtree: true });
